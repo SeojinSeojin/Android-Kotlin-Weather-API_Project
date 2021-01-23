@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.recyclerview.widget.*
 import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,19 +40,21 @@ class MainActivity : AppCompatActivity() {
                     val weatherResponse = response.body()
                     Log.d("로그", "$response")
                     Log.d("로그", "MainActivity - onResponse() called")
-                    Log.d("로그", "result : ${weatherResponse.toString()}")
-                    Log.d("로그", "weatherresponse list ${weatherResponse!!.list}")
-                    val strBuf =
-                            "co : " + weatherResponse!!.list!![0].components!!.co + "\n" +
-                            "no : " + weatherResponse.list!![0].components!!.no + "\n" +
-                            "no2 : " + weatherResponse.list!![0].components!!.no2 + "\n" +
-                            "o3 : " + weatherResponse.list!![0].components!!.o3 + "\n" +
-                            "so2 : " + weatherResponse.list!![0].components!!.so2 + "\n" +
-                            "pm25: " + weatherResponse.list!![0].components!!.pm2_5 + "\n" +
-                            "pm10 : " + weatherResponse.list!![0].components!!.pm10 + "\n" +
-                            "nh3 : " + weatherResponse.list!![0].components!!.nh3
+                    val aplist = ArrayList<AirPollutionInfo>()
+                    aplist.add(AirPollutionInfo("co", weatherResponse!!.list!![0].components!!.co, 900.0, 200.0))
+                    aplist.add(AirPollutionInfo("no2", weatherResponse!!.list!![0].components!!.no2, 5.1, 2.0))
+                    aplist.add(AirPollutionInfo("o3", weatherResponse!!.list!![0].components!!.o3, 91.0, 30.0))
+                    aplist.add(AirPollutionInfo("so2", weatherResponse!!.list!![0].components!!.so2, 0.0, 0.0))
+                    aplist.add(AirPollutionInfo("pm25", weatherResponse!!.list!![0].components!!.pm2_5, 26.0, 15.0))
+                    aplist.add(AirPollutionInfo("pm10", weatherResponse!!.list!![0].components!!.pm10, 51.0, 30.0))
+                    aplist.add(AirPollutionInfo("nh3", weatherResponse!!.list!![0].components!!.nh3, 0.0, 0.0))
+                    val adapter = RecyclerAdapter(aplist)
+                    val recyclerView : RecyclerView = findViewById(R.id.recyclerview)
+                    recyclerView.adapter = adapter
+                    recyclerView.layoutManager = GridLayoutManager(this@MainActivity, 1, LinearLayoutManager.HORIZONTAL, false)
 
-                    findViewById<TextView>(R.id.text).text = strBuf
+                    val snapHelper : SnapHelper = LinearSnapHelper()
+                    snapHelper.attachToRecyclerView(recyclerView)
                 }
             }
         })
@@ -79,7 +82,6 @@ class CompList() {
 
 class Components() {
     @SerializedName("co") var co : Double? = null
-    @SerializedName("no") var no : Double? = null
     @SerializedName("no2") var no2 : Double? = null
     @SerializedName("o3") var o3 : Double? = null
     @SerializedName("so2") var so2 : Double? = null
